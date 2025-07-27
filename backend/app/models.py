@@ -56,6 +56,7 @@ class Chapter(db.Model):
 class Quiz(db.Model):
     __tablename__ = 'quiz'
     id = Column(Integer, primary_key=True)
+    name = Column(db.String(100), nullable=False)
     chapter_id = Column(Integer, ForeignKey('chapter.id', ondelete='CASCADE'))
     date_of_quiz = Column(DateTime, nullable=False, default=datetime.utcnow)
     time_duration = Column(Time)

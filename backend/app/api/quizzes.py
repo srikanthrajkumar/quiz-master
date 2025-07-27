@@ -8,6 +8,7 @@ from auth import admin_required
 
 quiz_fields = {
     'id': fields.Integer,
+    'name': fields.String,
     'chapter_id': fields.Integer,
     'date_of_quiz': fields.DateTime,
     'time_duration': fields.String,
@@ -15,6 +16,7 @@ quiz_fields = {
 }
 
 quiz_parser = reqparse.RequestParser()
+quiz_parser.add_argument('name', type=str, required=True, help='Quiz name is required')
 quiz_parser.add_argument('date_of_quiz', type=str, required=True, help='Date of quiz is required')
 quiz_parser.add_argument('time_duration', type=str, required=True, help='Time duration is required')
 quiz_parser.add_argument('remarks', type=str, required=False)
@@ -38,10 +40,18 @@ class QuizListResource(Resource):
 
         args = quiz_parser.parse_args()
 
-        quiz = Quiz(chapter_id=chapter_id, date_of_quiz=datetime.strptime(args['date_of_quiz'], '%d/%m/%Y'), time_duration=time.fromisoformat(args['time_duration']), remarks=args.get('remarks'))
+        quiz = Quiz(name = args['name'], chapter_id=chapter_id, date_of_quiz=datetime.strptime(args['date_of_quiz'], '%d/%m/%Y'), time_duration=time.fromisoformat(args['time_duration']), remarks=args.get('remarks'))
 
         db.session.add(quiz)
         db.session.commit()
         return quiz, 201
 
+class QuizListAllResource(Resource):
+    @marshal_with(quiz_fields)
+    @jwt_required()
+    def get(self):
+        return Quiz.query.all(), 200
+
+
 api.add_resource(QuizListResource, '/api/chapters/<int:chapter_id>/quizzes')
+api.add_resource(QuizListAllResource, '/api/quizzes')

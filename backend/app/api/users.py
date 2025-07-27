@@ -1,7 +1,7 @@
 from flask_restful import Resource, fields, marshal_with, reqparse
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from werkzeug.security import generate_password_hash, check_password_hash
-from backend.app.models import User
+from backend.app.models import User, Role, UserRoles
 from datetime import datetime, timedelta
 from backend.app import db
 from . import api
@@ -19,13 +19,14 @@ user_fields = {
 register_parser = reqparse.RequestParser()
 register_parser.add_argument('username', type=str, required=True, help='Username is required')
 register_parser.add_argument('first_name', type=str, required=True, help='First Name is required')
-register_parser.add_argument('last_name', type=str, required=True, help='Last Name is required')
-register_parser.add_argument('qualification', type=str, required=True, help='Qualification is required')
+register_parser.add_argument('last_name', type=str, help='Last Name is required')
+register_parser.add_argument('qualification', type=str, help='Qualification is required')
 register_parser.add_argument('password', type=str, required=True, help='Password is required')
 
 login_parser = reqparse.RequestParser()
 login_parser.add_argument('username', type=str, required=True)
 login_parser.add_argument('password', type=str, required=True)
+
 
 class UserResource(Resource):
     @marshal_with(user_fields)
@@ -54,6 +55,13 @@ class UserRegisterResource(Resource):
         )
 
         db.session.add(user)
+        db.session.flush()
+
+        user_role = Role.query.filter_by(name='user').first()
+        if user_role:
+            user_role_assignment = UserRoles(user_id=user.id, role_id=user_role.id)
+            db.session.add(user_role_assignment)
+
         db.session.commit()
         return user, 201
 
@@ -68,8 +76,10 @@ class Login(Resource):
         if not check_password_hash(user.password, args['password']):
             return {'message': 'Invalid password'}, 403
 
+        user_role = user.roles[0].name if user.roles else 'user'
+
         access_token = create_access_token(identity=str(user.id), expires_delta=timedelta(days=1))
-        return {'access_token': access_token}, 200
+        return {'access_token': access_token, 'user_id': user.id, 'first_name': user.first_name, 'role': user_role}, 200
 
     @jwt_required()
     def get(self):

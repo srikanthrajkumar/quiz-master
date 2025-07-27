@@ -56,16 +56,16 @@ class QuestionListResource(Resource):
 class QuestionResource(Resource):
     @jwt_required()
     @marshal_with(question_fields)
-    def get(self, quiz_id, question_id):
-        question = Question.query.filter_by(id=question_id, quiz_id=quiz_id).first()
+    def get(self, question_id):
+        question = db.session.get(Question, question_id)
         if not question:
             return {'message': 'Question not found for this quiz'}, 404
         return question
 
     @jwt_required()
     @marshal_with(question_fields)
-    def put(self, quiz_id, question_id):
-        question = Question.query.filter_by(id=question_id, quiz_id=quiz_id).first()
+    def put(self, question_id):
+        question = db.session.get(Question, question_id)
         if not question:
             return {'message': 'Question not found for this quiz'}, 404
 
@@ -81,8 +81,8 @@ class QuestionResource(Resource):
         db.session.commit()
         return question, 200
 
-    def delete(self, quiz_id, question_id):
-        question = Question.query.filter_by(id=question_id, quiz_id=quiz_id).first()
+    def delete(self, question_id):
+        question = db.session.get(Question, question_id)
         if not question:
             return {'message': 'Question not found for this quiz'}, 404
 
@@ -91,4 +91,4 @@ class QuestionResource(Resource):
         return {'message': 'Question deleted successfully'}, 200
 
 api.add_resource(QuestionListResource, '/api/quizzes/<int:quiz_id>/questions')
-api.add_resource(QuestionResource, '/api/quizzes/<int:quiz_id>/questions/<int:question_id>')
+api.add_resource(QuestionResource, '/api/questions/<int:question_id>')
