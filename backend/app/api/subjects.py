@@ -1,7 +1,7 @@
 from flask_restful import Resource, fields, marshal_with, reqparse
 from flask_jwt_extended import jwt_required
 from backend.app.models import Subject
-from backend.app import db
+from backend.app import db, cache
 from . import api
 from auth import admin_required
 
@@ -32,6 +32,11 @@ class SubjectListResource(Resource):
         subject = Subject(name=args['name'], description=args.get('description'))
         db.session.add(subject)
         db.session.commit()
+
+        cache.delete("admin_dashboard_data")
+        cache.delete("user_summary_data")
+        cache.delete("admin_summary_data")
+
         return subject, 201
 
 class SubjectResource(Resource):

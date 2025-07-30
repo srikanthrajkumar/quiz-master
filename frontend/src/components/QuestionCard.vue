@@ -68,7 +68,7 @@ watch(
 )
 
 function emitAnswer() {
-  const isCorrect = Number(selected.value) === props.question.correct_option_index ? 1 : 0
+  const isCorrect = (Number(selected.value)+1) === props.question.correct_option_index ? 1 : 0
   emit('update:modelValue', isCorrect)
 }
 </script>

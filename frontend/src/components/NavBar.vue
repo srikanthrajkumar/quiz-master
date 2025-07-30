@@ -25,7 +25,7 @@ function logout() {
       
       <div class="navbar-nav me-auto">
         <router-link to="/dashboard" class="nav-link">Home</router-link>
-        <router-link v-if="role === 'admin'" to="/quizview" class="nav-link">Quiz</router-link>
+        <router-link v-if="role === 'admin'" to="/quiz" class="nav-link">Quiz</router-link>
         <router-link v-else-if="role === 'user'" to="/scores" class="nav-link">Scores</router-link>
         <router-link to="/summary" class="nav-link">Summary</router-link>
       </div>

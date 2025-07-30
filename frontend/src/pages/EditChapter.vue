@@ -1,17 +1,21 @@
 <template>
-  <div class="container mt-4">
-    <h2>Edit Chapter</h2>
-    <form @submit.prevent="updateChapter">
-      <div class="mb-3">
-        <label class="form-label">Name</label>
-        <input v-model="chapter.name" type="text" class="form-control" />
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Description</label>
-        <textarea v-model="chapter.description" class="form-control" />
-      </div>
-      <button type="submit" class="btn btn-primary">Save Changes</button>
-    </form>
+  <NavBar />
+
+  <div class="container d-flex justify-content-center align-items-center flex-column" style="min-height: 90vh;">
+    <div class="card p-4" style="width: 100%; max-width: 600px;">
+       <h3 class="text-center mb-3">Add Chapter</h3>
+        <form @submit.prevent="updateChapter">
+            <div class="mb-3">
+                <label class="form-label">Name</label>
+                <input v-model="chapter.name" type="text" class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Description</label>
+                <textarea v-model="chapter.description" class="form-control" />
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Save Changes</button>
+        </form>
+    </div>
   </div>
 </template>
 
@@ -19,6 +23,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
+import NavBar from '@/components/NavBar.vue';
 
 const route = useRoute()
 const router = useRouter()

@@ -3,12 +3,14 @@
     <NavBar />
     
     <div class="container mt-4">
-      <h2 align="center">Quiz Dashboard</h2>
+      <h2>Quiz Dashboard</h2>
       
-      <div class="d-flex justify-content-center">
+      <div>
         <router-link :to="`/quizzes/new` "class="btn btn-success btn-sm mt-2">+ Add Quiz</router-link>
       </div>
       
+      <hr/>
+
       <div v-if="!quizzes || quizzes.length === 0" class="text-muted">
         No quizzes found.
       </div>
@@ -16,7 +18,7 @@
       <div v-for="quiz in quizzes" :key="quiz.id" class="mb-4">
         <hr class="my-2" />
         <h4>{{ quiz.name }}</h4>
-        <i>{{ quiz.date_of_quiz }}</i>
+        <i>Start Date: {{ formatDate(quiz.date_of_quiz) }}</i>
         <hr class="my-2" />
         
         <div v-if="!quiz.questions || quiz.questions.length === 0" class="text-muted">
@@ -70,6 +72,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { formatDate } from '@/utils/dateFormatter';
 import axios from 'axios';
 import NavBar from '@/components/NavBar.vue';
 

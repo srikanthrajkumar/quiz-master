@@ -1,39 +1,41 @@
 <template>
-  <div class="container mt-4">
-    <h2>Add New Quiz</h2>
-    
-    <form @submit.prevent="submitQuiz" class="mt-3">
-      <div class="mb-3">
-        <label class="form-label">Quiz Name</label>
-        <input v-model="quiz.name" type="text" class="form-control" required />
-      </div>
+  <NavBar />
+  
+  <div class="container d-flex justify-content-center align-items-center flex-column" style="min-height: 100vh;">
+    <div class="card p-4" style="width: 100%; max-width: 600px;">
+        <h3 class="text-center mb-3">Add Quiz</h3>
+        <form @submit.prevent="submitQuiz" class="mt-3">
+            <div class="mb-3">
+                <label class="form-label">Quiz Name</label>
+                <input v-model="quiz.name" type="text" class="form-control" required />
+            </div>
 
-      <select v-model="quiz.chapter_id" class="form-select" required>
-        <option disabled value="">Select Chapter</option>
-        <option v-for="chapter in chapters" :key="chapter.id" :value="chapter.id">
-            {{ chapter.name }}
-        </option>
-      </select>
+            <select v-model="quiz.chapter_id" class="form-select" required>
+                <option disabled value="">Select Chapter</option>
+                <option v-for="chapter in chapters" :key="chapter.id" :value="chapter.id">
+                    {{ chapter.name }}
+                </option>
+            </select>
 
-      <div class="mb-3">
-        <label class="form-label">Date of Quiz (DD/MM/YYYY)</label>
-        <input v-model="quiz.date_of_quiz" type="text" class="form-control" placeholder="19/07/2025" required />
-      </div>
+            <div class="mb-3">
+                <label class="form-label">Start Date of Quiz (DD/MM/YYYY)</label>
+                <input v-model="quiz.date_of_quiz" type="text" class="form-control" placeholder="19/07/2025" required />
+            </div>
 
-      <div class="mb-3">
-        <label class="form-label">Time Duration (HH:MM:SS)</label>
-        <input v-model="quiz.time_duration" type="text" class="form-control" placeholder="01:30:00" required />
-      </div>
+            <div class="mb-3">
+                <label class="form-label">Time Duration (HH:MM:SS)</label>
+                <input v-model="quiz.time_duration" type="text" class="form-control" placeholder="01:30:00" required />
+            </div>
 
-      <div class="mb-3">
-        <label class="form-label">Remarks (Optional)</label>
-        <textarea v-model="quiz.remarks" class="form-control" rows="2"></textarea>
-      </div>
+            <div class="mb-3">
+                <label class="form-label">Remarks (Optional)</label>
+                <textarea v-model="quiz.remarks" class="form-control" rows="2"></textarea>
+            </div>
 
-      <button type="submit" class="btn btn-success">Submit</button>
-    </form>
-
-    <p class="text-danger mt-2" v-if="error">{{ error }}</p>
+            <button type="submit" class="btn btn-success w-100">Create Quiz</button>
+            <div v-if="error" class="text-danger text-center mt-2">{{ error }}</div> 
+        </form>
+    </div>
   </div>
 </template>
 
@@ -41,6 +43,7 @@
 import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import axios from 'axios';
+import NavBar from '@/components/NavBar.vue';
 
 const quiz = ref({
   name: '',
@@ -80,7 +83,7 @@ async function submitQuiz() {
     );
 
 
-    router.push('/quizview');
+    router.push('/quiz');
   } catch (err) {
     error.value = err.response?.data?.message || 'Something went wrong.';
   }

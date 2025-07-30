@@ -1,16 +1,27 @@
 <template>
-  <div class="login">
-    <h2>Login</h2>
-    <form @submit.prevent="loginUser">
-      <input v-model="username" placeholder="Username" />
-      <input v-model="password" type="password" placeholder="Password" />
-      <button type="submit">Login</button>
-      <p v-if="error">{{ error }}</p>
-    </form>
+  <div class="container d-flex justify-content-center align-items-center flex-column" style="min-height: 100vh;">
+    <h1 class="mb-4 fw-bold">Quiz Master</h1>
+    <div class="card p-4" style="width: 100%; max-width: 400px;">
+      <h3 class="text-center mb-3">Login</h3>
+      
+      <form @submit.prevent="loginUser">
+        <div class="mb-3">
+          <input v-model="username" type="text" class="form-control" placeholder="Username" required/>
+        </div>
+        
+        <div class="mb-3">
+          <input v-model="password" type="password" class="form-control" placeholder="Password" required/>
+        </div>
+        
+        <button type="submit" class="btn btn-primary w-100">Login</button>
+        
+        <div v-if="error" class="text-danger text-center mt-2">{{ error }}</div>
+      </form>
+    </div>
 
     <p>
-      New here?
-      <router-link to="/register">Click here to register</router-link>
+        New here? 
+        <router-link to="/register">Click here to register</router-link>
     </p>
   </div>
 </template>

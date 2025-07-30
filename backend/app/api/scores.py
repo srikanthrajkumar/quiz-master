@@ -1,5 +1,6 @@
 from flask_restful import Resource, fields, marshal_with, reqparse
 from flask_jwt_extended import jwt_required
+from flask_cors import cross_origin
 from datetime import datetime
 from backend.app.models import Score, User, Quiz
 from backend.app import db
@@ -29,6 +30,7 @@ class UserScoreListResource(Resource):
         return scores, 200
 
     @jwt_required()
+    @cross_origin()
     @marshal_with(score_fields)
     def post(self, user_id):
         args = score_parser.parse_args()
@@ -40,6 +42,11 @@ class UserScoreListResource(Resource):
         quiz = db.session.get(Quiz, args['quiz_id'])
         if not quiz:
             return {'message': 'Quiz not found'}, 404
+
+        existing_score = Score.query.filter_by(user_id=user_id, quiz_id=args['quiz_id']).first()
+        if existing_score:
+            return {'message': 'Score already exists'}, 409
+
 
         score = Score(
             quiz_id=args['quiz_id'],
@@ -63,9 +70,22 @@ class UserScoreListResource(Resource):
 
         score.total_scored = args['total_scored']
         score.remarks = args.get('remarks')
-        score.time_stamp_of_attempt = datetime.utcnow()  # assuming update time matters
+        score.time_stamp_of_attempt = datetime.utcnow()
         db.session.commit()
         return score, 200
 
+class UserScoreResource(Resource):
+    @jwt_required()
+    @admin_required
+    def delete(self, score_id):
+        score = db.session.get(Score, score_id)
+        if not score:
+            return {'message': 'Score not found'}, 404
+
+        db.session.delete(score)
+        db.session.commit()
+
+        return {'message': 'Score deleted successfully'}, 200
 
 api.add_resource(UserScoreListResource, '/api/users/<int:user_id>/scores')
+api.add_resource(UserScoreResource, '/api/scores/<int:score_id>')

@@ -2,7 +2,7 @@ from flask_restful import Resource, fields, marshal_with, reqparse
 from flask_jwt_extended import jwt_required
 from datetime import datetime, time
 from backend.app.models import Chapter, Quiz
-from backend.app import db
+from backend.app import db, cache
 from . import api
 from auth import admin_required
 
@@ -44,6 +44,11 @@ class QuizListResource(Resource):
 
         db.session.add(quiz)
         db.session.commit()
+
+        cache.delete("quiz_dashboard_data")
+        cache.delete("user_summary_data")
+        cache.delete("admin_summary_data")
+
         return quiz, 201
 
 class QuizListAllResource(Resource):
@@ -52,6 +57,20 @@ class QuizListAllResource(Resource):
     def get(self):
         return Quiz.query.all(), 200
 
+class QuizResource(Resource):
+    @jwt_required()
+    @admin_required
+    def delete(self, quiz_id):
+        quiz = db.session.get(Quiz, quiz_id)
+        if not quiz:
+            return {'message': 'Quiz not found'}, 404
+
+        db.session.delete(quiz)
+        db.session.commit()
+
+        return {'message': 'Quiz deleted successfully'}, 200
+
 
 api.add_resource(QuizListResource, '/api/chapters/<int:chapter_id>/quizzes')
 api.add_resource(QuizListAllResource, '/api/quizzes')
+api.add_resource(QuizResource, '/api/quizzes/<int:quiz_id>')

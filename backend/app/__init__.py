@@ -1,19 +1,22 @@
-from flask import Flask
+from flask import Flask, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
+from flask_caching import Cache
 from werkzeug.security import generate_password_hash
+from .celery_app import init_celery
 import os
 
 db = SQLAlchemy()
 migrate = Migrate()
 jwt = JWTManager()
+cache = Cache()
 
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
 
-    CORS(app)
+    CORS(app, origins=["http://127.0.0.1:5173"])
 
     db_path = os.path.join(app.instance_path, 'quizmaster.db')
     app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{db_path}"
@@ -23,12 +26,18 @@ def create_app():
     app.config['SECURITY_PASSWORD_HASH'] = 'pbkdf2_sha512'
     app.config['SECURITY_PASSWORD_SALT'] = 'salty'
     app.config['SECURITY_PASSWORD_SINGLE_HASH'] = False
+    app.config['CACHE_TYPE'] = 'RedisCache'
+    app.config['CACHE_REDIS_URL'] = 'redis://localhost:6379/0'
+    # app.config['CELERY_BROKER_URL'] = 'redis://localhost:6379/0'
+    # app.config['CELERY_RESULT_BACKEND'] = 'redis://localhost:6379/0'
+
 
     os.makedirs(app.instance_path, exist_ok=True)
 
     db.init_app(app)
     migrate.init_app(app, db)
     jwt.init_app(app)
+    cache.init_app(app)
 
     from .models import User, Role, UserRoles
 
@@ -74,5 +83,12 @@ def create_app():
 
     from .api import init_api
     init_api(app)
-    
+
+    @app.route('/api/downloads/<filename>')
+    def download_file(filename):
+        return send_from_directory(os.path.join(app.instance_path, 'exports'), filename)
+
+    init_celery(app)
+    from . import jobs
+
     return app

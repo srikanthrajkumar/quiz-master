@@ -2,7 +2,7 @@ from . import db
 
 from flask_sqlalchemy import SQLAlchemy
 from flask_security import UserMixin, RoleMixin
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Time, Text
+from sqlalchemy import Column, Integer, Float, String, Boolean, DateTime, ForeignKey, Time, Text
 from sqlalchemy.orm import relationship
 
 from datetime import datetime
@@ -83,5 +83,5 @@ class Score(db.Model):
     quiz_id = Column(Integer, ForeignKey('quiz.id', ondelete='CASCADE'))
     user_id = Column(Integer, ForeignKey('user.id', ondelete='CASCADE'))
     time_stamp_of_attempt = Column(DateTime, default=datetime.utcnow)
-    total_scored = Column(Integer)
+    total_scored = Column(Float)
     remarks = Column(Text)

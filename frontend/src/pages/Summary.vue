@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import AdminDashboard from '@/components/AdminDashboard.vue'
-import UserDashboard from '@/components/UserDashboard.vue'
+import AdminSummary from '@/components/AdminSummary.vue'
+import UserSummary from '@/components/UserSummary.vue'
 
 const userRole = ref('')
 
@@ -11,6 +11,6 @@ onMounted(() => {
 </script>
 
 <template>
-  <AdminDashboard v-if="userRole === 'admin'" />
-  <UserDashboard v-else />
+  <AdminSummary v-if="userRole === 'admin'" />
+  <UserSummary v-else />
 </template>

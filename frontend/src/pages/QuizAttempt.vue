@@ -23,7 +23,6 @@
         </div>
 
         <hr />
-        <p>Score: {{ currentScore }} / {{ quiz.questions.length }}</p>
         <button type="submit" class="btn btn-primary" :disabled="timeExpired || isSubmitting">
             {{ isSubmitting ? 'Submitting...' : 'Submit Quiz' }}
         </button>
@@ -39,77 +38,54 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 import QuestionCard from '@/components/QuestionCard.vue'
+import { useQuizTimer } from '@/utils/useQuizTimer'
 
 const route = useRoute()
 const router = useRouter()
 const quizId = parseInt(route.params.quizId)
-console.log(quizId)
 
 const quiz = ref(null)
 const answers = ref([])
-const timeRemaining = ref(0)
-const timeExpired = ref(false)
 const isSubmitting = ref(false)
 
-let timerInterval = null
-
-const displayTime = computed(() => {
-  const minutes = Math.floor(timeRemaining.value / 60)
-  const seconds = timeRemaining.value % 60
-  return `${minutes.toString().padStart(2, '0')}:${seconds
-    .toString()
-    .padStart(2, '0')}`
-})
+const { timeRemaining, timeExpired, displayTime, startTimer, cleanup } = useQuizTimer()
 
 const currentScore = computed(() => {
-  if (!quiz.value) return 0
-  return answers.value.reduce((total, score) => {
+  if (!quiz.value || !quiz.value.questions || quiz.value.questions.length === 0) return 0
+  
+  const totalScore = answers.value.reduce((total, score) => {
     return total + (score || 0)
   }, 0)
+  
+  const totalQuestions = quiz.value.questions.length
+  return Math.round((totalScore / totalQuestions) * 100)
 })
 
 async function loadQuiz() {
   try {
     const token = localStorage.getItem('token')
     const response = await axios.get(
-      `${import.meta.env.VITE_API_BASE_URL}/user/quizzes`,
+      `${import.meta.env.VITE_API_BASE_URL}/user/attempt`,
       { headers: { Authorization: `Bearer ${token}` } }
     )
-
-    console.log('Quiz API data:', response.data)
 
     const foundQuiz = response.data.find(q => q.id === quizId)
     if (foundQuiz) {
       quiz.value = foundQuiz
       answers.value = Array(foundQuiz.questions.length).fill(null)
-
-      const [hh, mm, ss] = foundQuiz.time_duration.split(':').map(Number)
-      timeRemaining.value = hh * 3600 + mm * 60 + ss
-
-      startTimer()
+      timeRemaining.value = foundQuiz.time_duration
+      startTimer(submitQuiz)
     }
   } catch (error) {
     console.error('Failed to load quiz:', error)
   }
 }
 
-function startTimer() {
-  timerInterval = setInterval(() => {
-    if (timeRemaining.value > 0) {
-      timeRemaining.value--
-    } else {
-      timeExpired.value = true
-      clearInterval(timerInterval)
-      submitQuiz()
-    }
-  }, 1000)
-}
-
 async function submitQuiz() {
   if (isSubmitting.value) return;
 
   isSubmitting.value = true;
-  clearInterval(timerInterval);
+  cleanup();
 
   try {
     const token = localStorage.getItem('token');
@@ -117,7 +93,7 @@ async function submitQuiz() {
     const totalScore = currentScore.value;
 
     await axios.post(
-      `${import.meta.env.VITE_API_BASE_URL}/score/${userId}`,
+      `${import.meta.env.VITE_API_BASE_URL}/users/${userId}/scores`,
       {
         quiz_id: quizId,
         total_scored: totalScore
@@ -129,17 +105,35 @@ async function submitQuiz() {
 
     router.push('/dashboard');
   } catch (error) {
-    console.error('Failed to submit score:', error);
-    isSubmitting.value = false;
+    if (error.response && error.response.status === 409) {
+      try {
+        const token = localStorage.getItem('token');
+        const userId = localStorage.getItem('user_id');
+        const totalScore = currentScore.value;
+
+        await axios.put(
+          `${import.meta.env.VITE_API_BASE_URL}/users/${userId}/scores`,
+          {
+            quiz_id: quizId,
+            total_scored: totalScore
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` }
+          }
+        );
+
+        router.push('/dashboard');
+      } catch (putError) {
+        console.error('Failed to update score:', putError);
+        isSubmitting.value = false;
+      }
+    } else {
+      console.error('Failed to submit score:', error);
+      isSubmitting.value = false;
+    }
   }
 }
 
-
 onMounted(loadQuiz)
-
-onUnmounted(() => {
-  if (timerInterval) {
-    clearInterval(timerInterval)
-  }
-})
+onUnmounted(cleanup)
 </script>

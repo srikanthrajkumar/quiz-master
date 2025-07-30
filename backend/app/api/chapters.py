@@ -1,7 +1,7 @@
 from flask_restful import Resource, fields, marshal_with, reqparse
 from flask_jwt_extended import jwt_required
 from backend.app.models import Subject, Chapter
-from backend.app import db
+from backend.app import db, cache
 from . import api
 from auth import admin_required
 
@@ -37,6 +37,11 @@ class ChapterListResource(Resource):
         chapter = Chapter(name=args['name'], description=args['description'], subject_id=subject_id)
         db.session.add(chapter)
         db.session.commit()
+
+        cache.delete("admin_dashboard_data")
+        cache.delete("user_summary_data")
+        cache.delete("admin_summary_data")
+
         return chapter, 201
 
 class ChapterResource(Resource):
@@ -60,6 +65,8 @@ class ChapterResource(Resource):
         chapter.name = args['name']
         chapter.description = args.get('description')
         db.session.commit()
+        
+        cache.delete("admin_dashboard_data")
 
         return chapter, 200
 

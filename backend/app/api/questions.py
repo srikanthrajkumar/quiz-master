@@ -1,7 +1,7 @@
 from flask_restful import Resource, reqparse, fields, marshal_with
 from flask_jwt_extended import jwt_required
 from backend.app.models import Question, Quiz
-from backend.app import db
+from backend.app import db, cache
 from . import api
 from auth import admin_required
 
@@ -51,6 +51,10 @@ class QuestionListResource(Resource):
         )
         db.session.add(question)
         db.session.commit()
+
+        cache.delete("quiz_dashboard_data")
+        
+    
         return question, 201
 
 class QuestionResource(Resource):
@@ -79,6 +83,9 @@ class QuestionResource(Resource):
         question.photoURL = args.get('photoURL')
 
         db.session.commit()
+
+        cache.delete("quiz_dashboard_data")
+
         return question, 200
 
     def delete(self, question_id):
@@ -88,6 +95,11 @@ class QuestionResource(Resource):
 
         db.session.delete(question)
         db.session.commit()
+
+        cache.delete("quiz_dashboard_data")
+        cache.delete("user_summary_data")
+        cache.delete("admin_summary_data")
+
         return {'message': 'Question deleted successfully'}, 200
 
 api.add_resource(QuestionListResource, '/api/quizzes/<int:quiz_id>/questions')

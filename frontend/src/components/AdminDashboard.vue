@@ -3,11 +3,13 @@
     <NavBar />
     
     <div class="container mt-4">
-      <h2 align="center">Admin Dashboard</h2>
+      <h2>Admin Dashboard</h2>
       
-      <div class="d-flex justify-content-center">
+      <div>
         <router-link :to="`/subjects/new` "class="btn btn-success btn-sm mt-2">+ Add Subject</router-link>
       </div>
+
+      <hr/>
       
       <div v-if="subjects.length === 0" class="text-muted">
         No subjects found.
