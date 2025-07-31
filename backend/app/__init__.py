@@ -6,7 +6,10 @@ from flask_cors import CORS
 from flask_caching import Cache
 from werkzeug.security import generate_password_hash
 from .celery_app import init_celery
+from .jobs import reminder_bp, report_bp
 import os
+from dotenv import load_dotenv
+
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -14,9 +17,10 @@ jwt = JWTManager()
 cache = Cache()
 
 def create_app():
+    load_dotenv()
     app = Flask(__name__, instance_relative_config=True)
 
-    CORS(app, origins=["http://127.0.0.1:5173"])
+    CORS(app, supports_credentials=True)
 
     db_path = os.path.join(app.instance_path, 'quizmaster.db')
     app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{db_path}"
@@ -28,8 +32,11 @@ def create_app():
     app.config['SECURITY_PASSWORD_SINGLE_HASH'] = False
     app.config['CACHE_TYPE'] = 'RedisCache'
     app.config['CACHE_REDIS_URL'] = 'redis://localhost:6379/0'
-    # app.config['CELERY_BROKER_URL'] = 'redis://localhost:6379/0'
-    # app.config['CELERY_RESULT_BACKEND'] = 'redis://localhost:6379/0'
+    app.config['SMTP_SERVER_HOST'] = os.getenv('SMTP_SERVER_HOST')
+    app.config['SMTP_SERVER_PORT'] = int(os.getenv('SMTP_SERVER_PORT'))
+    app.config['SMTP_SERVER_EMAIL'] = os.getenv('SMTP_SERVER_EMAIL')
+    app.config['SMTP_SERVER_PASSWORD'] = os.getenv('SMTP_SERVER_PASSWORD')
+
 
 
     os.makedirs(app.instance_path, exist_ok=True)
@@ -89,6 +96,12 @@ def create_app():
         return send_from_directory(os.path.join(app.instance_path, 'exports'), filename)
 
     init_celery(app)
-    from . import jobs
+    
+    import sys
+    if 'celery' not in sys.argv and 'worker' not in sys.argv:
+        from . import jobs
+
+    app.register_blueprint(reminder_bp)
+    app.register_blueprint(report_bp)
 
     return app

@@ -29,10 +29,6 @@
                 <label class="form-label">Correct Option</label>
                 <input v-model="question.correct_option_index" type="text" class="form-control" />
             </div>
-            <div class="mb-3">
-                <label class="form-label">Photo</label>
-                <textarea v-model="question.photoURL" class="form-control" />
-            </div>
             <button type="submit" class="btn btn-primary w-100">Save Changes</button>
         </form> 
     </div>
@@ -48,7 +44,7 @@ import NavBar from '@/components/NavBar.vue';
 const route = useRoute()
 const router = useRouter()
 const questionId = route.params.id
-const question = ref({ question_statement: '', option1: '', option2: '', option3: '', option4: '', correct_option_index: '', photoURL: ''})
+const question = ref({ question_statement: '', option1: '', option2: '', option3: '', option4: '', correct_option_index: ''})
 
 onMounted(async () => {
   try {

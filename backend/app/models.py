@@ -75,7 +75,6 @@ class Question(db.Model):
     option3 = Column(String(255))
     option4 = Column(String(255))
     correct_option_index = Column(Integer, nullable=False)
-    photoURL = Column(String(512))
 
 class Score(db.Model):
     __tablename__ = 'score'

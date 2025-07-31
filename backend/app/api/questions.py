@@ -13,8 +13,7 @@ question_fields = {
     'option2': fields.String,
     'option3': fields.String,
     'option4': fields.String,
-    'correct_option_index': fields.Integer,
-    'photoURL': fields.String,
+    'correct_option_index': fields.Integer
 }
 
 question_parser = reqparse.RequestParser()
@@ -24,7 +23,6 @@ question_parser.add_argument('option2', type=str, required=True, help='Option 2 
 question_parser.add_argument('option3', type=str)
 question_parser.add_argument('option4', type=str)
 question_parser.add_argument('correct_option_index', type=int, required=True, help='Correct option index is required')
-question_parser.add_argument('photoURL', type=str)
 
 class QuestionListResource(Resource):
     @jwt_required()
@@ -47,7 +45,6 @@ class QuestionListResource(Resource):
             option3=args.get('option3'),
             option4=args.get('option4'),
             correct_option_index=args['correct_option_index'],
-            photoURL=args.get('photoURL')
         )
         db.session.add(question)
         db.session.commit()
@@ -80,7 +77,6 @@ class QuestionResource(Resource):
         question.option3 = args.get('option3')
         question.option4 = args.get('option4')
         question.correct_option_index = args['correct_option_index']
-        question.photoURL = args.get('photoURL')
 
         db.session.commit()
 

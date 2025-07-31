@@ -29,10 +29,6 @@
                 <label class="form-label">Correct Option</label>
                 <input v-model="question.correct_option_index" type="number" class="form-control" min="1" max="4" placeholder="Accepts only 1, 2, 3, or 4"/>
             </div>
-            <div class="mb-3">
-                <label class="form-label">Photo</label>
-                <textarea v-model="question.photoURL" class="form-control" />
-            </div>
             <button type="submit" class="btn btn-success w-100">Create Question</button>
             <div v-if="error" class="text-danger text-center mt-2">{{ error }}</div>
         </form>
@@ -57,7 +53,6 @@ const question = ref({
   option3: '',
   option4: '',
   correct_option_index: '',
-  photoURL: ''
 })
 
 async function createQuestion() {
