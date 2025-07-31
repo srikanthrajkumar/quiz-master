@@ -39,7 +39,7 @@ A full-stack quiz management platform built with Flask, Vue.js, SQLite, Redis, a
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/21f3001497/quiz-master-v2
+git clone https://github.com/21f3001497/quiz-master-v2.git
 cd quiz-master
 ```
 ### 2. Create & Activate Virtual Environment
