@@ -7,27 +7,27 @@ A full-stack quiz management platform built with Flask, Vue.js, SQLite, Redis, a
 ## Project Structure
 
 ```text
-├── run.py                 # Entry point to run the Flask app
-├── auth.py                # Auth-related helper functions
-├── requirements.txt       # Python dependencies
+├── run.py
+├── auth.py
+├── requirements.txt
 ├── backend/
 │   └── app/
-│       ├── __init__.py        # App factory and configuration
-│       ├── api/               # Route controllers
-│       ├── models.py          # SQLAlchemy models
-│       ├── jobs.py            # Celery background jobs
-│       ├── celery_entry.py    # Celery app entrypoint
-│       ├── templates/         # Flask-rendered templates
-│       └── static/            # Static files for Flask routes
+│       ├── __init__.py
+│       ├── api/
+│       ├── models.py
+│       ├── jobs.py
+│       ├── celery_entry.py
+│       ├── templates/
+│       └── static/
 ├── frontend/
 │   ├── src/               # Vue.js source code (components, pages, services)
-│   ├── public/            # Static files served by Vite
-│   └── vite.config.js     # Vite configuration
+│   ├── public/            
+│   └── vite.config.js 
 ├── instance/
-│   ├── quizmaster.db      # SQLite database file
-│   └── exports/           # Exported CSV files
-├── migrations/            # Alembic database migrations
-└── venv/                  # Python virtual environment
+│   ├── quizmaster.db 
+│   └── exports/
+├── migrations/
+└── venv/
 ```
 
 ## Tech Stack
